@@ -16,17 +16,19 @@ pipeline {
     }
 
     stage('Test'){
-       steps{
+      steps{
         sh 'docker run jenkins1 ./vendor/bin/phpunit tests'
       }
     }
-  }
+  
 
-    stage('Print'){
+    stage('Impresion de mensaje'){
       steps{
-      sh 'echo HelloWorld'
+        sh 'echo HelloWorld'
+    }
     }
   }
+
 }
 
 
