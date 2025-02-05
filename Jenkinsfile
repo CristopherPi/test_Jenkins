@@ -27,8 +27,7 @@ pipeline {
         sh 'HelloWorld'
       }
     }
-  }
+}
 
 
   
-}
