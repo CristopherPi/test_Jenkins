@@ -22,4 +22,13 @@ pipeline {
     }
   }
 
+      stage('Print'){
+       steps{
+        sh 'HelloWorld'
+      }
+    }
+  }
+
+
+  
 }
