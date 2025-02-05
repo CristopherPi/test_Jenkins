@@ -22,11 +22,11 @@ pipeline {
     }
   }
 
-      stage('Print'){
-       steps{
-        sh 'HelloWorld'
-      }
+    stage('Print'){
+      steps{
+      sh 'echo HelloWorld'
     }
+  }
 }
 
 
