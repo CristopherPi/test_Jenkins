@@ -3,8 +3,9 @@ pipeline {
 
   parameters {
     booleanParam(name: 'ROLLBACK', defaultValue: false, description: '¿Ejecutar rollback?')
+    buildID(name: 'BUILD_ID', defaultValue: '1', description: 'ID de la construcción')
   }
-  
+
   stages {
     stage ('Verificar docker'){
       steps {
