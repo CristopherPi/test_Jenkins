@@ -3,7 +3,7 @@ pipeline {
 
   parameters {
     booleanParam(name: 'ROLLBACK', defaultValue: false, description: '¿Ejecutar rollback?')
-    buildID(name: 'BUILD_ID', defaultValue: '1', description: 'ID de la construcción')
+    string(name: 'ROLLBACK_BUILD_NUMBER', defaultValue: '', description: 'Número de build al que deseas hacer rollback (ej: 42)')
   }
 
   stages {
@@ -32,27 +32,25 @@ pipeline {
         sh 'echo HelloWorld'
     }
     }
-  
-    stage('Rollback') {
-    when {
-      expression {
-        // Puedes activar rollback con una condición o una variable, aquí es un ejemplo
-        return params.ROLLBACK == true
+
+
+  stage('Rollback') {
+      when {
+        expression {
+          return params.ROLLBACK == true && params.ROLLBACK_BUILD_NUMBER?.trim()
+        }
+      }
+      steps {
+        script {
+          def rollbackBuild = params.ROLLBACK_BUILD_NUMBER.trim()
+          echo "Ejecutando rollback al build número: ${rollbackBuild}"
+
+          sh """
+            docker run -d --name jenkins_container jenkins1:${rollbackBuild}
+          """
+        }
       }
     }
-    steps {
-      script {
-        // Supón que el rollback debe usar la imagen anterior (BUILD_NUMBER - 1)
-        def previousBuild = env.BUILD_NUMBER.toInteger() - 1
-        sh """
-          echo "Realizando rollback a la versión: ${previousBuild}"
-          docker stop jenkins_container || true
-          docker rm jenkins_container || true
-          docker run -d --name jenkins_container jenkins1:${previousBuild}
-        """
-      }
-    }
-  }
   }
 
 }
