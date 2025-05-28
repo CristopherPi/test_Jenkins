@@ -3,7 +3,7 @@ pipeline {
 
   parameters {
     booleanParam(name: 'ROLLBACK', defaultValue: false, description: '¿Ejecutar rollback?')
-    string(name: 'ROLLBACK_BUILD_NUMBER', defaultValue: '', description: 'Número de build al que deseas hacer rollback (ej: 42)')
+    string(name: 'BUILD_NUMBER', defaultValue: '', description: 'Número de build al que deseas hacer rollback (ej: 42)')
   }
 
   stages {
@@ -22,12 +22,12 @@ pipeline {
     stage('Rollback') {
       when {
         expression {
-          return params.ROLLBACK == true && params.ROLLBACK_BUILD_NUMBER?.trim()
+          return params.ROLLBACK == true && params.BUILD_NUMBER?.trim()
         }
       }
       steps {
         script {
-          def rollbackBuild = params.ROLLBACK_BUILD_NUMBER.trim()
+          def rollbackBuild = params.BUILD_NUMBER.trim()
           echo "Ejecutando rollback al build número: ${rollbackBuild}"
 
           sh """
