@@ -1,29 +1,33 @@
-pipeline {
-  agent any 
 
   // parameters {
   //   booleanParam(name: 'ROLLBACK', defaultValue: false, description: '¿Ejecutar rollback?')
   // }
 
-
-  stage ('Rollback') {
-    def userInputRollback = input(
-      id: 'userInputRollback',
-      message: '¿Deseas realizar un rollback?', 
-      parameters: [
-        booleanParam(name: 'ROLLBACK', defaultValue: false, 
-        description: '¿Ejecutar rollback?')
-      ]
-    )
-  if (userInputRollback == true) {
-      echo 'Rollback activado'
-    } else {
-      echo 'Rollback no activado'
-    }
-  }
-
+pipeline {
+  agent any
 
   stages {
+    stage('Rollback') {
+      steps {
+        script {
+          def userInput = input(
+            id: 'userInputRollback',
+            message: '¿Deseas realizar un rollback?',
+            parameters: [
+              booleanParam(name: 'ROLLBACK', defaultValue: false, description: '¿Ejecutar rollback?')
+            ]
+          )
+
+          if (userInput == true) {
+            echo 'Rollback activado'
+            // Aquí podrías ejecutar comandos de rollback si lo deseas
+          } else {
+            echo 'Rollback no activado'
+          }
+        }
+      }
+    }
+    
     stage('Verificar docker') {
       steps {
         sh 'docker info'
@@ -32,13 +36,13 @@ pipeline {
 
     stage('Docker build') {
       steps {
-        sh 'docker build -t app_image:${BUILD_NUMBER} .'
+        sh 'docker build -t app_image:${env.BUILD_NUMBER} .'
       }
     }
 
     stage('Test') {
       steps {
-        sh 'docker run --rm app_image:${BUILD_NUMBER} ./vendor/bin/phpunit tests'
+        sh 'docker run --rm app_image:${env.BUILD_NUMBER} ./vendor/bin/phpunit tests'
       }
     }
 
@@ -47,6 +51,9 @@ pipeline {
         sh 'echo HelloWorld'
       }
     }
+  }
+}
+
 
     // stage('Rollback') {
     //   when {
@@ -68,7 +75,3 @@ pipeline {
     //     }
     //   }
     // }
-  }
-
-
-}
