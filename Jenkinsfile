@@ -11,7 +11,7 @@ pipeline {
 
     stage ('Docker buiild '){
       steps{
-        sh 'docker build -t jenkins1 .'
+        sh 'docker build -t jenkins1:${BUILD_NUMBER} .'
       }
     }
 
