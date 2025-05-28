@@ -7,34 +7,19 @@ pipeline {
   }
 
   stages {
-    stage ('Verificar docker'){
+    stage('Verificar docker') {
       steps {
         sh 'docker info'
       }
     }
-  
 
-    stage ('Docker buiild '){
-      steps{
-        sh 'docker build -t jenkins1:${BUILD_NUMBER} .'
+    stage('Docker build') {
+      steps {
+        sh 'docker build -t jenkins1:${env.BUILD_NUMBER} .'
       }
     }
 
-    stage('Test'){
-      steps{
-        sh 'docker run jenkins1 ./vendor/bin/phpunit tests'
-      }
-    }
-  
-
-    stage('Impresion de mensaje'){
-      steps{
-        sh 'echo HelloWorld'
-    }
-    }
-
-
-  stage('Rollback') {
+    stage('Rollback') {
       when {
         expression {
           return params.ROLLBACK == true && params.ROLLBACK_BUILD_NUMBER?.trim()
@@ -46,14 +31,12 @@ pipeline {
           echo "Ejecutando rollback al build número: ${rollbackBuild}"
 
           sh """
+            docker stop jenkins_container || true
+            docker rm jenkins_container || true
             docker run -d --name jenkins_container jenkins1:${rollbackBuild}
           """
         }
       }
     }
   }
-
 }
-
-
-  
