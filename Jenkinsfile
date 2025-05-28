@@ -3,9 +3,11 @@ pipeline {
 
   parameters {
     booleanParam(name: 'ROLLBACK', defaultValue: false, description: '¿Ejecutar rollback?')
-    string(name: 'BUILD_NUMBER', defaultValue: '', description: 'Número de build al que deseas hacer rollback (ej: 42)')
   }
-
+  environment {
+    DOCKER_IMAGE = "jenkins1:${BUILD_NUMBER}"
+  }
+  
   stages {
     stage('Verificar docker') {
       steps {
@@ -15,28 +17,43 @@ pipeline {
 
     stage('Docker build') {
       steps {
-        sh 'docker build -t jenkins1:${env.BUILD_NUMBER} .'
+        sh 'docker build -t jenkins1:${BUILD_NUMBER} .'
+      }
+    }
+
+    stage('Test') {
+      steps {
+        sh 'docker run --rm jenkins1:${BUILD_NUMBER} ./vendor/bin/phpunit tests'
+      }
+    }
+
+    stage('Impresion de mensaje') {
+      steps {
+        sh 'echo HelloWorld'
       }
     }
 
     stage('Rollback') {
       when {
         expression {
-          return params.ROLLBACK == true && params.BUILD_NUMBER?.trim()
+          // Puedes activar rollback con una condición o una variable, aquí es un ejemplo
+          return params.ROLLBACK == true
         }
       }
       steps {
         script {
-          def rollbackBuild = params.BUILD_NUMBER.trim()
-          echo "Ejecutando rollback al build número: ${rollbackBuild}"
-
+          // Supón que el rollback debe usar la imagen anterior (BUILD_NUMBER - 1)
+          def previousBuild = env.BUILD_NUMBER.toInteger() - 1
           sh """
+            echo "Realizando rollback a la versión: ${previousBuild}"
             docker stop jenkins_container || true
             docker rm jenkins_container || true
-            docker run -d --name jenkins_container jenkins1:${rollbackBuild}
+            docker run -d --name jenkins_container jenkins1:${previousBuild}
           """
         }
       }
     }
   }
+
+
 }
