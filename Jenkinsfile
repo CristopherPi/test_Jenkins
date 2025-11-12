@@ -25,5 +25,11 @@ pipeline {
         sh 'echo HelloWorld'
     }
     }
+
+    stage('Test jenkins para prueba '){
+      steps{
+        sh 'echo Si funciona el pipeline'
+    }
+    }
   }
 }
